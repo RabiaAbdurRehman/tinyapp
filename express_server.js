@@ -76,6 +76,11 @@ app.post("/urls/:id/delete", (req, res) => {
     // }
     res.redirect(`/urls`);
 });
+app.post("/login", (req, res) => {
+    const userName = req.body.userName;
+    res.cookie('userName', userName);
+    res.redirect('/urls');
+});
 //To check how we put html code in res.
 app.get("/hello", (req, res) => {
     res.send("<html><body>Hello<b>World</b></body></html>\n");
