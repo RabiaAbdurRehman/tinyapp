@@ -1,9 +1,11 @@
 // requirements
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080;
 
 app.set("view engine", "ejs");
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));// for submitting forms.
 const urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
@@ -29,17 +31,18 @@ app.get("/urls.json", (req, res) => {
 });
 //show our data
 app.get("/urls", (req, res) => {
-    const templateVars = { urls: urlDatabase };
+    const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
     res.render('urls_index', templateVars);
 });
 // to enter new info though form
 app.get("/urls/new", (req, res) => {
-    res.render("urls_new");
+    const templateVars = {username: req.cookies["username"] }
+    res.render("urls_new", templateVars);
 });
 //show a data to a specific id.
 app.get("/urls/:id", (req, res) => {
 
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"] };
     res.render("urls_show", templateVars);
 
 });
@@ -78,7 +81,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 app.post("/login", (req, res) => {
     const userName = req.body.userName;
-    res.cookie('userName', userName);
+    res.cookie('username', userName);
     res.redirect('/urls');
 });
 //To check how we put html code in res.
