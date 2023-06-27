@@ -11,10 +11,10 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
 
-      <% if (username) { %>
+      <% if (user) { %>
         <div class="ml-auto" style="display: flex;">
           <div>
-            <a class="nav-link username" href="#">Login as: <%= username %></a>
+            <a class="nav-link username" href="#">Login as: <%= user.email %></a>
           </div>
           <div>
             <form class="ml-auto" action="/logout" method="POST">
