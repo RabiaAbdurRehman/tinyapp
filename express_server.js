@@ -34,15 +34,25 @@ function generateRandomString() {
     }
     return resultNumber;
 }
-// checking duplicate
+// checking duplicate emails
 function getUserByEmail(email) {
     for (const userId in users) {
         if (users[userId].email === email) {
-            return false;
+            return users[userId];// return false
         }
     }
-    return true;
+    return null;//return true;
 }
+//cehcking passwords if they match:
+function getPasswordByEmail(users, password) {
+    for (const userId in users) {
+
+        if (users[userId].password === password)
+            return true;
+
+    }
+    return false;
+};
 //first Routes
 //first very home page
 app.get("/", (req, res) => {
@@ -108,28 +118,39 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 app.post("/login", (req, res) => {
     //console.log("login in called")
-    const userName = req.body.userName;
-    res.cookie('username', userName);
-    res.redirect('/urls');
-});
-app.post("/Logout", (req, res) => {
-    console.log('Logout button clicked');
-    res.clearCookie('user_id');
-    res.redirect('/urls');
-});
-app.post("/register", (req, res) => {
-    const newUser = {};
     const email = req.body.email;
-
     const password = req.body.password;
     if (!email || !password) {
         res.status(401).send("Email or password can not be empty!");
         return;
     }
-    if (!getUserByEmail(email)) {
+    const user = getUserByEmail(email);
+    if (!user) {
+        return res.status(401).send("Email can not be found!");
+    }
+    if (!getPasswordByEmail(users, password)) {
+
+        return res.status(401).send("Password doesnt match");
+    }
+    res.cookie("user_id", user.id);
+    res.redirect("/urls");
+});
+app.post("/Logout", (req, res) => {
+    //console.log('Logout button clicked');
+    res.clearCookie('user_id');
+    res.redirect('/login');
+});
+app.post("/register", (req, res) => {
+    const newUser = {};
+    const email = req.body.email;
+    const password = req.body.password;
+    if (!email || !password) {
+        res.status(401).send("Email or password can not be empty!");
+        return;
+    }
+    if (getUserByEmail(email)) {
         return res.status(401).send("Email already exists!");
     };
-
     const userId = generateRandomString();
     users[userId] = {
         id: userId,
