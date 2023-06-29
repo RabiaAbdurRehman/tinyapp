@@ -1,12 +1,20 @@
 // requirements
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
 const PORT = 8080;
 const bcrypt = require("bcryptjs");
+const cookieSession = require('cookie-session');
 //middle ware, everyime you recieve a request. they will be executed.
 app.set("view engine", "ejs");
-app.use(cookieParser());
+app.use(cookieSession({
+    name: 'session',
+    keys: ["abc"],
+
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
+//app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));// = req.body, for submitting forms.
 
 //our tempoarary database for now.
@@ -85,7 +93,7 @@ app.get("/urls.json", (req, res) => {
 });
 //show our data
 app.get("/urls", (req, res) => {
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     if (!user) {
         res.status(401).send(`you must be login`);
         return; //res.redirect(`/login`);
@@ -101,7 +109,7 @@ app.get("/urls", (req, res) => {
 });
 // to enter new info though form
 app.get("/urls/new", (req, res) => {
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     const templateVars = { user: user };
     if (!user) {
         res.redirect(`/login`);
@@ -113,7 +121,7 @@ app.get("/urls/new", (req, res) => {
 //show a data to a specific id.
 app.get("/urls/:id", (req, res) => {
 
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     if (!user) {
         res.status(401).send(`you must be login`);
         return;
@@ -146,7 +154,7 @@ app.get("/u/:id", (req, res) => {
 });
 app.get("/register", (req, res) => {
     //res.render('registration.ejs');
-    if (req.cookies['user_id']) {
+    if (req.session['user_id']) {
         res.redirect(`/urls`);
         return;
     }
@@ -155,7 +163,7 @@ app.get("/register", (req, res) => {
 });
 app.get("/login", (req, res) => {
 
-    if (req.cookies['user_id']) {
+    if (req.session['user_id']) {
         res.redirect(`/urls`);
 
     } else {
@@ -164,7 +172,7 @@ app.get("/login", (req, res) => {
 
 });
 app.post("/urls", (req, res) => {
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     if (!user) {
         res.send("sorry you are not logged in.");
         return;
@@ -190,7 +198,7 @@ app.post(`/urls/:id`, (req, res) => {
         return;
     }
     //sould return a relevant error message if the user is not logged in
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     if (!user) {
         res.status(404).send("sorry you are not logged in.");
         return;
@@ -215,7 +223,7 @@ app.post(`/urls/:id`, (req, res) => {
 });
 app.post("/urls/:id/delete", (req, res) => {
     const ids = req.params.id;
-    const user = users[req.cookies['user_id']];
+    const user = users[req.session['user_id']];
     if (!urlDatabase[ids]) {
         res.status(404).send(`id doesnt exist`);
         return;
@@ -252,12 +260,14 @@ app.post("/login", (req, res) => {
     if (!isMatch) {
         return res.status(400).send('authentication failed!');
     }
-    res.cookie("user_id", user.id);
+    // res.cookie("user_id", user.id);
+    req.session.user_id = user.id;
     res.redirect("/urls");
 });
 app.post("/Logout", (req, res) => {
     //console.log('Logout button clicked');
-    res.clearCookie('user_id');
+    // res.clearCookie('user_id');
+    req.session = null;
     res.redirect('/login');
 });
 app.post("/register", (req, res) => {
@@ -279,7 +289,8 @@ app.post("/register", (req, res) => {
         password: hashedPassword
     };
     //console.log(hashedPassword);
-    res.cookie("user_id", userId);
+    //res.cookie("user_id", userId);
+    req.session.user_id = userId;
     res.redirect("/urls");
 });
 //To check how we put html code in res.
