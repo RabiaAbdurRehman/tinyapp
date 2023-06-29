@@ -72,29 +72,59 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
     const user = users[req.cookies['user_id']];
     const templateVars = { user: user };
+    if (!user) {
+        res.redirect(`/login`);
+        return;
+    }
     res.render("urls_new", templateVars);
+
 });
 //show a data to a specific id.
 app.get("/urls/:id", (req, res) => {
+
     const user = users[req.cookies['user_id']];
-    console.log(user);
+    //console.log(user);
     const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: user };
     res.render("urls_show", templateVars);
+    res.redirect(`/login`);
 
 });
+app.get("/u/:id", (req, res) => {
+    const longURL = urlDatabase[req.params.id];
+    if (!longURL){
+        res.send("sorry URL doesnt exist.");
+        return;
+    }
+    res.redirect(longURL);
+  });
 app.get("/register", (req, res) => {
     res.render('registration.ejs');
+    if (req.cookies['user_id']) {
+        res.redirect(`/urls`);
+    } else {
+        res.render('registration.ejs');
+    }
 });
 app.get("/login", (req, res) => {
-    res.render('login.ejs');
+
+    if (req.cookies['user_id']) {
+        res.redirect(`/urls`);
+    } else {
+        res.render('login.ejs');
+    }
 
 });
 app.post("/urls", (req, res) => {
-    console.log(req.body); // Log the POST request body to the console for us to see
+    const user = users[req.cookies['user_id']];
+    if (!user){
+        res.send("sorry you are not logged in.");
+        return;
+    }
+    //console.log(req.body); // Log the POST request body to the console for us to see
     const shortUrl = generateRandomString();// get unique id by calling function.
     urlDatabase[shortUrl] = req.body.longURL; // save longURL from submissions and generate id, store in urlDatabase
     console.log(urlDatabase); //for us to see.
-    res.redirect(`/urls/${shortUrl}`); // Redirects to new page for longURL and shortURL
+    res.redirect(`/urls/${shortUrl}`);// Redirects to new page for longURL and shortURL
 });
 // Route for /urls/:id to handle editing of Short URL ID details
 app.post(`/urls/:id`, (req, res) => {
