@@ -64,5 +64,5 @@
 
 ## Final Product
 
-!["screenshot description"](#"./docs/login.png")
-!["screenshot description"](#"./docs/urls-page.png")
+!["my url page"](#"./docs/urls-page.png")
+!["my login page"](#"./docs/login.png")
