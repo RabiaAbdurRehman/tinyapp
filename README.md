@@ -11,8 +11,7 @@
 
 ---
 
-\*\* -Add route for /urls in expressserver.js and render using accompanying template
-
+-Add route for /urls in expressserver.js and render using accompanying template
 - Add route for /urls/:id in expressserver.js and render using accompanying template
 - Include the header partial inside urls_index.ejs and urls_show.ejs. Make sure this is included inside the top of the body.
 - Add GET route to expressserver.js and render using accompanying template
