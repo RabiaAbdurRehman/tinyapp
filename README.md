@@ -7,7 +7,20 @@
 - [x] 3. permits the user to create, read, update, and delete
      (CRUD) a simple entity (e.g. blog posts, URL shortener).
 
-### 1. Template Engine - EJS:
+## Dependencies
+
+- Node.js
+- Express
+- EJS
+- bcryptjs
+- cookie-session
+
+## Getting Started
+
+- Install all dependencies (using the `npm install` command).
+- Run the development web server using the `node express_server.js` command.
+
+###  Template Engine - EJS:
 
 ---
 
@@ -48,3 +61,8 @@
 - Modify the registration endpoint to use bcrypt to hash and save password (use bcrypt.hashSync)
 - Modify the login endpoint to use bcrypt to check the password (use bcrypt.compareSync)
 - All cookie data is encrypted
+
+## Final Product
+
+!["screenshot description"](#"C:\Users\rabia\OneDrive\Desktop\1.png")
+!["screenshot description"](#"C:\Users\rabia\OneDrive\Desktop\2.png")
