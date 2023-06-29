@@ -64,5 +64,5 @@
 
 ## Final Product
 
-!["screenshot description"](#"C:\Users\rabia\OneDrive\Desktop\1.png")
-!["screenshot description"](#"C:\Users\rabia\OneDrive\Desktop\2.png")
+!["screenshot description"](#"./docs/login.png")
+!["screenshot description"](#"./docs/urls-page.png")
