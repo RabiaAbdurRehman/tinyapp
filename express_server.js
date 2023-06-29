@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
 const PORT = 8080;
+const bcrypt = require("bcryptjs");
 //middle ware, everyime you recieve a request. they will be executed.
 app.set("view engine", "ejs");
 app.use(cookieParser());
@@ -246,9 +247,10 @@ app.post("/login", (req, res) => {
     if (!user) {
         return res.status(401).send("Email can not be found!");
     }
-    if (!getPasswordByEmail(users, password)) {
-
-        return res.status(401).send("Password doesnt match");
+    //const isMatch = password === user.password;
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch) {
+        return res.status(400).send('authentication failed!');
     }
     res.cookie("user_id", user.id);
     res.redirect("/urls");
@@ -264,17 +266,19 @@ app.post("/register", (req, res) => {
     const password = req.body.password;
     if (!email || !password) {
         return res.status(401).send("Email or password can not be empty!");
-
     }
     if (getUserByEmail(email)) {
         return res.status(401).send("Email already exists!");
     };
+    //bcrypt process
+    const hashedPassword = bcrypt.hashSync(password, 10);
     const userId = generateRandomString();
     users[userId] = {
         id: userId,
         email: email,
-        password: password
+        password: hashedPassword
     };
+    //console.log(hashedPassword);
     res.cookie("user_id", userId);
     res.redirect("/urls");
 });
