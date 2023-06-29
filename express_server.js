@@ -1,11 +1,23 @@
-// requirements
+/**
+ * requirements
+ *
+ */
 const express = require("express");
 const app = express();
 //const cookieParser = require('cookie-parser');
 const PORT = 8080;
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session');
-//middle ware, everyime you recieve a request. they will be executed.
+/**
+ * Module exports.
+ *
+ */
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Middleware
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// set up middleware
 app.set("view engine", "ejs");
 app.use(cookieSession({
     name: 'session',
@@ -16,8 +28,9 @@ app.use(cookieSession({
 }));
 //app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));// = req.body, for submitting forms.
-
-//our tempoarary database for now.
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Database
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 const urlDatabase = {
     b6UTxQ: {
         longURL: "https://www.tsn.ca",
@@ -44,25 +57,7 @@ const users = {
         password: "dishwasher-funk",
     },
 };
-//To create unique Id
-function generateRandomString() {
-    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let resultNumber = '';
-    for (let i = 0; i < 6; i++) {
-        resultNumber += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return resultNumber;
-}
-// checking duplicate emails
-function getUserByEmail(email) {
-    for (const userId in users) {
-        if (users[userId].email === email) {
-            return users[userId];// return false
-        }
-    }
-    return null;//return true;
-}
-//cehcking passwords if they match:
+// 3)cehcking passwords if they match:
 function getPasswordByEmail(users, password) {
     for (const userId in users) {
 
@@ -72,17 +67,9 @@ function getPasswordByEmail(users, password) {
     }
     return false;
 };
-function urlsForUser(user) {
-    const userUrls = {};
-    for (const id in urlDatabase) {
-        if (urlDatabase[id].userId === user.id) {
-            userUrls[id] = urlDatabase[id];
-        }
-
-    }
-    return userUrls;
-}
-//first Routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 //first very home page
 app.get("/", (req, res) => {
     res.send("Welcome to my Tinyapp");
@@ -99,8 +86,8 @@ app.get("/urls", (req, res) => {
         return; //res.redirect(`/login`);
     }
     else {
-        urlsForUser(user);
-        const templateVars = { urls: urlDatabase, user: user };
+        const userUrls =urlsForUser(user, urlDatabase);
+        const templateVars = { urls: userUrls, user: user };
         return res.render('urls_index', templateVars);
 
     }
@@ -251,7 +238,7 @@ app.post("/login", (req, res) => {
         res.status(401).send("Email or password can not be empty!");
         return;
     }
-    const user = getUserByEmail(email);
+    const user = getUserByEmail(email, users);
     if (!user) {
         return res.status(401).send("Email can not be found!");
     }
@@ -277,7 +264,7 @@ app.post("/register", (req, res) => {
     if (!email || !password) {
         return res.status(401).send("Email or password can not be empty!");
     }
-    if (getUserByEmail(email)) {
+    if (getUserByEmail(email, users)) {
         return res.status(401).send("Email already exists!");
     };
     //bcrypt process
